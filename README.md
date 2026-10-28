@@ -65,16 +65,31 @@ Run the commands below in **PowerShell**, from the repository root.
 - A GPU/driver supporting the selected rendering backend.
 
 ```powershell
-git clone https://github.com/Dilyob2004/Beast.BuildTool.git
+git clone --recurse-submodules https://github.com/Dilyob2004/Beast.BuildTool.git
 cd Beast.BuildTool
 dotnet build BuildTool/Beast.BuildTool.csproj -c Release
 ```
+
+The build tool is moving to the standalone
+[Beast.BuildTool.v2](https://github.com/Dilyob2004/Beast.BuildTool.v2) repository, included as
+the `Beast.BuildTool.v2` git submodule. The SDK is a regular v2 project (`BeastSDK/Source/Beast.Target.cs`,
+modules `BeastCore`, `BeastInput`, `BeastPlatform`, `BeastRHI`, `BeastUI`); applications connect it as an
+external project. EcoSbor is already migrated:
+
+```powershell
+.\Setup.ps1                      # fetch and build Beast.BuildTool.v2 (.NET 10; add -InstallDotnet if missing)
+.\beast.ps1 build Test/EcoSbor --platform Windows --config Debug
+.\beast.ps1 new MyApp --path Test --template BeastSDK/Templates/UIApplication
+```
+
+The other samples (and `watch`/hot reload, portable shaders) still use the bundled `BuildTool`
+below until the migration is finished.
 
 ### 2. Run EcoSbor
 
 ```powershell
 Copy-Item Test/EcoSbor/Config/BuildConfig.example.json Test/EcoSbor/Config/BuildConfig.json
-.\BuildTool\bin\Beast.BuildTool.exe build Test/EcoSbor --platform Windows --config Debug
+.\beast.ps1 build Test/EcoSbor --platform Windows --config Debug   # Beast.BuildTool.v2, see above
 .\Test\EcoSbor\Binaries\Windows\Debug\EcoSbor.exe
 ```
 
@@ -134,8 +149,8 @@ Install Android SDK platform 35, build tools, an NDK (the development setup uses
 Defaults use the usual Windows Android Studio/SDK locations.
 
 ```powershell
-.\BuildTool\bin\Beast.BuildTool.exe build Test/EcoSbor --platform Android --config Debug
-.\BuildTool\bin\Beast.BuildTool.exe run Test/EcoSbor --no-build --wait
+.\beast.ps1 build Test/EcoSbor --platform Android --config Debug
+.\beast.ps1 run Test/EcoSbor --platform Android --no-build
 ```
 
 Connect and authorize a USB device, or use an Android emulator. Use `--device`
