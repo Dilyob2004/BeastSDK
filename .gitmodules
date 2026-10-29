@@ -1,0 +1,4 @@
+[submodule "Beast.BuildTool.v2"]
+	path = Beast.BuildTool.v2
+	url = https://github.com/Dilyob2004/Beast.BuildTool.v2.git
+	branch = main

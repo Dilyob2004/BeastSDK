@@ -57,24 +57,31 @@ source also targets Android; platform behavior and performance can differ.
 
 Run the commands below in **PowerShell**, from the repository root.
 
-### 1. Prepare the Windows toolchain
+### 1. Prepare the toolchain
 
-- Git and the **.NET 8 SDK** (or a newer SDK capable of targeting .NET 8).
-- Visual Studio with **Desktop development with C++**, an MSVC x64 toolset,
-  and Windows SDK. The current local development setup uses Visual Studio 2026.
-- A GPU/driver supporting the selected rendering backend.
+- Git, Visual Studio with **Desktop development with C++** (MSVC x64 toolset and Windows SDK;
+  the current development setup uses Visual Studio 2026), and a GPU/driver supporting the
+  selected rendering backend.
+- The build tool is [Beast.BuildTool.v2](https://github.com/Dilyob2004/Beast.BuildTool.v2),
+  included as the `Beast.BuildTool.v2` git submodule. `Setup.ps1` fetches and builds it; it needs
+  the .NET 10 SDK, which `-InstallDotnet` installs without administrator rights.
 
 ```powershell
-git clone https://github.com/Dilyob2004/Beast.BuildTool.git
-cd Beast.BuildTool
-dotnet build BuildTool/Beast.BuildTool.csproj -c Release
+git clone --recurse-submodules https://github.com/Dilyob2004/BeastSDK.git
+cd BeastSDK
+.\Setup.ps1 -InstallDotnet -Android   # .NET 10, then the build tool; -Android: JDK 17, Android SDK and NDK
 ```
+
+`-Android` is needed only for Android builds; add `-Emulator` for the emulator and AVD `beast_api34`.
+Everything installs per user, into the Android Studio locations. Run `.\Setup.ps1` again after
+`git pull`; `.\Setup.ps1 -Update` moves the build tool to its latest version. On Linux/macOS use
+`./Setup.sh --install-dotnet --android` and `./beast.sh` (the SDK itself targets Windows and Android).
 
 ### 2. Run EcoSbor
 
 ```powershell
 Copy-Item Test/EcoSbor/Config/BuildConfig.example.json Test/EcoSbor/Config/BuildConfig.json
-.\BuildTool\bin\Beast.BuildTool.exe build Test/EcoSbor --platform Windows --config Debug
+.\beast.ps1 build Test/EcoSbor --platform Windows --config Debug
 .\Test\EcoSbor\Binaries\Windows\Debug\EcoSbor.exe
 ```
 
@@ -84,72 +91,68 @@ configuration. Sample configs with machine-specific paths are ignored by Git.
 ### 3. Create your own project
 
 ```powershell
-.\BuildTool\bin\Beast.BuildTool.exe new MyApp --path Test
-.\BuildTool\bin\Beast.BuildTool.exe build Test/MyApp --platform Windows --config Debug
+.\beast.ps1 new MyApp --path Test --template BeastSDK/Templates/UIApplication
+.\beast.ps1 build Test/MyApp --platform Windows --config Debug
 ```
 
-The generator creates `Source/Launch`, module rules, `Config/BuildConfig.json`,
-platform resources, and a Visual Studio solution. Outputs go under `Binaries`;
-build caches go under `Intermediate/Build`.
+The template creates a UI application: `Source/MyApp.Target.cs` (the application plus the
+`Beast` library), `Source/Launch` with a "Hello, Beast!" scene, `Config/BuildConfig.json` that
+points at the SDK, platform resources, and a Visual Studio solution. Outputs go under `Binaries`;
+build caches go under `Intermediate/Build` (the SDK is compiled there too, per application).
 
-For a minimal UI, replace `Source/Launch/Launch.cpp` with:
+The SDK is a regular Beast.BuildTool.v2 project (`BeastSDK/Source/Beast.Target.cs`) with the modules
+`BeastCore`, `BeastInput`, `BeastPlatform`, `BeastRHI` and `BeastUI`. An application connects it as an
+external project:
 
-```cpp
-#include "Beast.h"
+```jsonc
+// Config/BuildConfig.json
+"externalProjects": [ { "name": "Beast", "path": "../../BeastSDK" } ]
+```
 
-class HelloScene final : public Beast::UI::Scene
-{
-public:
-    HelloScene()
-    {
-        using namespace Beast::UI;
-        auto message = std::make_shared<Text>("Hello, Beast!", 24.0f);
-        auto button = std::make_shared<Button>("Say hello", [message] {
-            message->SetText("Native UI, written in C++.");
-        });
-        using namespace Beast::UI::Build;
-        ui.SetRoot(Make<Center>(VBox({message, button}, 16)));
-    }
-};
-
-BEAST_UI_APPLICATION(HelloScene, {.title = "Hello Beast"})
+```csharp
+// Source/MyApp.Target.cs: Modules.Add("Launch"); TargetDependencies.Add("Beast");
+// Source/Launch/Launch.Build.cs:
+PrivateDependencies.Add("BeastUI"); // #include "Beast.h"
 ```
 
 Add a module and regenerate IDE files:
 
 ```powershell
-.\BuildTool\bin\Beast.BuildTool.exe module Core Test/MyApp
-.\BuildTool\bin\Beast.BuildTool.exe generate Test/MyApp
+.\beast.ps1 module Core Test/MyApp
+.\beast.ps1 generate Test/MyApp
 ```
 
-Modules live under `Source/<Name>/<Name>.Build.cs`. Declare dependencies in your
-module rules as needed. `Source` is an include root, so a header can be included
-as `#include "Core/Public/Core.h"`.
+Modules live under `Source/<Name>/<Name>.Build.cs`; declare the dependency in the using module's
+rules (`PrivateDependencies.Add("Core")`). `Source` is an include root, so a header can be included
+as `#include "Core/Public/Core.h"`. Rules reference: [Beast.BuildTool.v2 docs](https://github.com/Dilyob2004/Beast.BuildTool.v2/tree/main/docs).
 
 ### Android
 
-Install Android SDK platform 35, build tools, an NDK (the development setup uses
-28/29), and Java 17 or a compatible Android Studio JBR. Set `android.javaHome`,
-`android.sdkRoot`, and `android.ndkRoot` in the project's `Config/BuildConfig.json`.
-Defaults use the usual Windows Android Studio/SDK locations.
+`.\Setup.ps1 -Android` installs JDK 17, Android SDK platform 35, build tools and the NDK. Paths are
+found automatically (`ANDROID_HOME`, `JAVA_HOME`, Android Studio locations) or set with
+`android.javaHome`, `android.sdkRoot` and `android.ndkRoot` in the project's `Config/BuildConfig.json`.
 
 ```powershell
-.\BuildTool\bin\Beast.BuildTool.exe build Test/EcoSbor --platform Android --config Debug
-.\BuildTool\bin\Beast.BuildTool.exe run Test/EcoSbor --no-build --wait
+.\beast.ps1 build Test/EcoSbor --platform Android --config Debug
+.\beast.ps1 run Test/EcoSbor --platform Android --no-build
 ```
 
 Connect and authorize a USB device, or use an Android emulator. Use `--device`
-or `--avd` to select a target. Standard Android builds target ARM64; the hot-reload
-emulator workflow also supports x86_64. Release APKs are signed, but the local
+or `--avd` to select a target. Android builds target ARM64 by default; add `"abis": ["arm64-v8a",
+"x86_64"]` under `android` for emulators. Release APKs are signed, but the local
 debug-key fallback is **not a production signing identity**. See
 [Android signing](BuildTool/AndroidRelease.md) before distribution.
 
 ### Hot reload
 
+Hot reload still runs through the bundled legacy `BuildTool` (as do the samples other than EcoSbor)
+until it is moved onto `beast watch` of Beast.BuildTool.v2:
+
 ```powershell
-.\BuildTool\bin\Beast.BuildTool.exe watch Test/EcoSbor --platform Windows
+dotnet build BuildTool/Beast.BuildTool.csproj -c Release   # legacy tool, .NET 8
+.\BuildTool\bin\Beast.BuildTool.exe watch Test/HotReloadDemo --platform Windows
 # In a separate session, for an already-running emulator:
-.\BuildTool\bin\Beast.BuildTool.exe watch Test/EcoSbor --platform Android --device emulator-5554
+.\BuildTool\bin\Beast.BuildTool.exe watch Test/HotReloadDemo --platform Android --device emulator-5554
 ```
 
 Save application code to trigger a rebuild. This is a development feature for

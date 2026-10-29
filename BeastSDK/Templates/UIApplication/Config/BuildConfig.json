@@ -1,0 +1,8 @@
+{
+  "externalProjects": [
+    { "name": "Beast", "path": "{{TemplateDirRelative}}/../.." }
+  ],
+  "defaultConfiguration": "Debug",
+  "android": { "minSdk": 29, "targetSdk": 35 },
+  "windows": { "dpiAware": true }
+}

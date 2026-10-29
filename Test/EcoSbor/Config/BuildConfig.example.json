@@ -1,8 +1,17 @@
 {
-  "hotReload": true,
-  "engine": { "enabled": true, "sdkRoot": "" },
+  "externalProjects": [
+    {
+      "name": "Beast",
+      "path": "../../BeastSDK"
+    }
+  ],
   "defaultConfiguration": "Debug",
   "defaultPlatform": "Windows",
-  "android": { "minSdk": 29, "targetSdk": 35 },
-  "windows": { "dpiAware": true }
+  "android": {
+    "minSdk": 29,
+    "targetSdk": 35
+  },
+  "windows": {
+    "dpiAware": true
+  }
 }
