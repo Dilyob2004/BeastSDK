@@ -1,4 +1,5 @@
 {
+  "minimumBuildToolVersion": "2.0.0",
   "externalProjects": [
     { "name": "Beast", "path": "{{TemplateDirRelative}}/../.." }
   ],
