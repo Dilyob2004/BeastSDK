@@ -77,7 +77,7 @@ Everything installs per user, into the Android Studio locations. Run `.\Setup.ps
 `git pull`; `.\Setup.ps1 -Update` moves the build tool to its latest version. On Linux/macOS use
 `./Setup.sh --install-dotnet --android` and `./beast.sh` (the SDK itself targets Windows and Android).
 
-The submodule is pinned to a Beast.BuildTool.v2 release (`v2.0.0`); applications require at least that
+The submodule is pinned to a Beast.BuildTool.v2 release (`v2.0.1`); applications require at least that
 version (`"minimumBuildToolVersion": "2.0.0"` in `Config/BuildConfig.json`). Instead of building it, you can
 also use a self-contained release archive from [Releases](https://github.com/Dilyob2004/Beast.BuildTool.v2/releases)
 (no .NET needed): unpack it, add the folder to `PATH` and run `beast` instead of `.\beast.ps1`.
