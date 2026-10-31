@@ -215,7 +215,7 @@ fragment float4 BeastClearFragment(constant float4& color [[buffer(0)]]) { retur
             textures_.emplace(handle.get(), std::move(native));
             return result;
         }
-        NSUInteger UploadVertices(const std::vector<RHIVertex>& vertices, id<MTLBuffer>& buffer)
+        NSUInteger UploadVertices(const std::vector<RHIVertex>& vertices, __strong id<MTLBuffer>& buffer)
         {
             auto& arena = arenas_[frame_];
             const NSUInteger bytes = NSUInteger(vertices.size() * sizeof(RHIVertex));
