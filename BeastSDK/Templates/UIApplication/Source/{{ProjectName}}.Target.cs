@@ -7,5 +7,7 @@ public sealed class {{ProjectIdentifier}}Target : TargetRules
     {
         Modules.Add("Launch");
         TargetDependencies.Add("Beast");
+        // iOS: a UIKit application bundle (scenes, CAMetalLayer), not a console program.
+        ConsoleApplication = info.Platform != PlatformType.IOS;
     }
 }

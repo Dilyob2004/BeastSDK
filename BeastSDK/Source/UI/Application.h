@@ -58,7 +58,7 @@ namespace Beast::UI
     {
         std::string title = "Beast Application";
         int width = 960, height = 640;
-        RHIBackend backend = RHIBackend::OpenGL;
+        RHIBackend backend = DefaultRHIBackend(); // Metal on iOS, OpenGL elsewhere.
         bool vsync = true, validation = false, profiling = false;
     };
     // Standard host for a Scene. Override Application directly only for custom

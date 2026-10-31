@@ -2,7 +2,7 @@
 #include <limits>
 #if defined(_WIN32)
 #include <malloc.h>
-#elif defined(__ANDROID__)
+#elif defined(__ANDROID__) || defined(__APPLE__)
 #include <cstdlib>
 #else
 #error Beast memory backend is not implemented for this platform.
@@ -22,7 +22,7 @@ namespace Beast::Memory
             return nullptr;
 #if defined(_WIN32)
         return _aligned_malloc(size, alignment);
-#elif defined(__ANDROID__)
+#elif defined(__ANDROID__) || defined(__APPLE__)
         void* pointer = nullptr;
         return ::posix_memalign(&pointer, alignment, size) == 0 ? pointer : nullptr;
 #endif
@@ -32,7 +32,7 @@ namespace Beast::Memory
     {
 #if defined(_WIN32)
         _aligned_free(pointer);
-#elif defined(__ANDROID__)
+#elif defined(__ANDROID__) || defined(__APPLE__)
         std::free(pointer);
 #endif
     }

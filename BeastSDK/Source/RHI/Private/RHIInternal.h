@@ -23,6 +23,7 @@ namespace Beast::Detail
         ~SubmitCpuTimer() { if (enabled_) stats_.submitCpuMs = std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - start_).count(); }
     };
     std::unique_ptr<RHI> CreateVulkanRHI(const Window&, RHIOptions);
+    std::unique_ptr<RHI> CreateMetalRHI(const Window&, RHIOptions); // Apple platforms only.
     inline RHIRect Clip(RHIRect rect, int width, int height)
     {
         const auto left = std::clamp<std::int64_t>(rect.x, 0, width);

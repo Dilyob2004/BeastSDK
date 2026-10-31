@@ -2,15 +2,21 @@
 #include "Core/Window.h"
 #include "RHI/RHICommandList.h"
 #include "RHI/RHIDiagnostics.h"
+#include "Platform/Platform.h"
 #include <memory>
 
 namespace Beast
 {
     // OpenGL requires desktop 4.6 core on Windows; Android uses OpenGL ES 3.0+.
-    enum class RHIBackend { OpenGL, Vulkan };
+    // Metal is the only backend on Apple platforms (iOS); OpenGL/Vulkan are rejected there,
+    // and Metal is rejected everywhere else.
+    enum class RHIBackend { OpenGL, Vulkan, Metal };
+    constexpr RHIBackend DefaultRHIBackend() { return IsApplePlatform() ? RHIBackend::Metal : RHIBackend::OpenGL; }
+    constexpr bool IsRHIBackendSupported(RHIBackend backend)
+    { return IsApplePlatform() ? backend == RHIBackend::Metal : backend == RHIBackend::OpenGL || backend == RHIBackend::Vulkan; }
     struct RHIOptions
     {
-        RHIBackend backend = RHIBackend::OpenGL;
+        RHIBackend backend = DefaultRHIBackend();
         bool vsync = true;
         bool validation = false; // Vulkan validation when installed; logged if unavailable.
         bool profiling = false; // Optional asynchronous GPU timestamps and CPU submit timer.

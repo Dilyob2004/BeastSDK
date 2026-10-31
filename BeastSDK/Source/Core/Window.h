@@ -18,7 +18,7 @@ namespace Beast
     // They must not be retained across Android backgrounding or rotation.
     struct Window
     {
-        void* nativeHandle = nullptr; // HWND or ANativeWindow*
+        void* nativeHandle = nullptr; // HWND, ANativeWindow* or CAMetalLayer* (iOS)
         int width = 0, height = 0;     // physical pixels
         int contentX = 0, contentY = 0, contentWidth = 0, contentHeight = 0;
         float scale = 1.0f;           // pixels per logical unit

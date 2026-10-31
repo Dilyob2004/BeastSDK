@@ -10,6 +10,10 @@ namespace Beast
     {
         if (desc.name.empty() || desc.entryPoint.empty() || desc.glsl460.empty() || desc.glslES300.empty())
             throw std::invalid_argument("A shader requires its name, entry point and both GLSL targets.");
+#if defined(__APPLE__)
+        if (desc.msl.empty())
+            throw std::invalid_argument("Shader " + desc.name + " has no Metal (MSL) source; regenerate it with BeastSDK/Tools/GenerateMetalShaders.py.");
+#endif
         if (desc.stage != RHIShaderStage::Vertex && desc.stage != RHIShaderStage::Fragment)
             throw std::invalid_argument("Unsupported shader stage.");
         if (desc.stage == RHIShaderStage::Fragment && desc.combinedSampler.empty())

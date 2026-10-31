@@ -67,6 +67,30 @@ void main()
 }
 
 )BEAST_GLSL";
+    d.msl = R"BEAST_MSL(#include <metal_stdlib>
+#include <simd/simd.h>
+
+using namespace metal;
+
+struct PSMain_out
+{
+    float4 out_var_SV_Target0 [[color(0)]];
+};
+
+struct PSMain_in
+{
+    float2 in_var_TEXCOORD0 [[user(locn0)]];
+    float4 in_var_COLOR0 [[user(locn1)]];
+};
+
+fragment PSMain_out PSMain(PSMain_in in [[stage_in]], texture2d<float> ColorTexture [[texture(0)]], sampler ColorSampler [[sampler(0)]])
+{
+    PSMain_out out = {};
+    out.out_var_SV_Target0 = ColorTexture.sample(ColorSampler, in.in_var_TEXCOORD0) * in.in_var_COLOR0;
+    return out;
+}
+
+)BEAST_MSL";
     d.combinedSampler = "SPIRV_Cross_CombinedColorTextureColorSampler";
     return Beast::RHI::CreateShader(std::move(d));
 }
@@ -669,6 +693,124 @@ void main()
 }
 
 )BEAST_GLSL";
+    d.msl = R"BEAST_MSL(#include <metal_stdlib>
+#include <simd/simd.h>
+
+using namespace metal;
+
+struct type_ConstantBuffer_DrawConstants
+{
+    float4 values[8];
+};
+
+struct LayerMain_out
+{
+    float4 out_var_SV_Target0 [[color(0)]];
+};
+
+struct LayerMain_in
+{
+    float2 in_var_TEXCOORD0 [[user(locn0)]];
+    float4 in_var_COLOR0 [[user(locn1)]];
+};
+
+fragment LayerMain_out LayerMain(LayerMain_in in [[stage_in]], constant type_ConstantBuffer_DrawConstants& BeastDraw [[buffer(0)]], texture2d<float> ColorTexture [[texture(0)]], sampler ColorSampler [[sampler(0)]])
+{
+    LayerMain_out out = {};
+    float _305;
+    if (BeastDraw.values[2].x > 0.0)
+    {
+        float2 _69 = (in.in_var_TEXCOORD0 * BeastDraw.values[1].xy) - BeastDraw.values[0].xy;
+        float _304;
+        do
+        {
+            if (precise::min(BeastDraw.values[0].z, BeastDraw.values[0].w) <= 0.0)
+            {
+                _304 = 0.0;
+                break;
+            }
+            if (BeastDraw.values[1].z <= 0.0)
+            {
+                float2 _88 = precise::max(float2(0.0), precise::min(_69 + float2(0.5), BeastDraw.values[0].zw) - precise::max(_69 - float2(0.5), float2(0.0)));
+                _304 = _88.x * _88.y;
+                break;
+            }
+            float2 _92 = BeastDraw.values[0].zw * 0.5;
+            float2 _97 = abs(_69 - _92) - (_92 - float2(BeastDraw.values[1].z));
+            float _100 = _97.x;
+            float _101 = _97.y;
+            float _105 = (length(precise::max(_97, float2(0.0))) + precise::min(precise::max(_100, _101), 0.0)) - BeastDraw.values[1].z;
+            if (_105 <= (-0.707107007503509521484375))
+            {
+                _304 = 1.0;
+                break;
+            }
+            if (_105 >= 0.707107007503509521484375)
+            {
+                _304 = 0.0;
+                break;
+            }
+            float2 _117;
+            float2 _118;
+            if (_100 > _101)
+            {
+                _117 = BeastDraw.values[0].wz;
+                _118 = _69.yx;
+            }
+            else
+            {
+                _117 = BeastDraw.values[0].zw;
+                _118 = _69;
+            }
+            float _121 = precise::max(0.0, _118.x - 0.5);
+            float _124 = precise::min(_117.x, _118.x + 0.5);
+            if (_124 <= _121)
+            {
+                _304 = 0.0;
+                break;
+            }
+            float _128 = _124 - _121;
+            float _131 = _121 + (_128 * 0.0625);
+            float _133 = _117.x - BeastDraw.values[1].z;
+            float _136 = precise::max(precise::max(BeastDraw.values[1].z - _131, _131 - _133), 0.0);
+            float _145 = (_136 * _136) / precise::max(BeastDraw.values[1].z + sqrt(precise::max(0.0, (BeastDraw.values[1].z - _136) * (BeastDraw.values[1].z + _136))), 9.9999999747524270787835121154785e-07);
+            float _147 = _118.y + 0.5;
+            float _151 = _118.y - 0.5;
+            float _156 = _121 + (_128 * 0.1875);
+            float _160 = precise::max(precise::max(BeastDraw.values[1].z - _156, _156 - _133), 0.0);
+            float _169 = (_160 * _160) / precise::max(BeastDraw.values[1].z + sqrt(precise::max(0.0, (BeastDraw.values[1].z - _160) * (BeastDraw.values[1].z + _160))), 9.9999999747524270787835121154785e-07);
+            float _177 = _121 + (_128 * 0.3125);
+            float _181 = precise::max(precise::max(BeastDraw.values[1].z - _177, _177 - _133), 0.0);
+            float _190 = (_181 * _181) / precise::max(BeastDraw.values[1].z + sqrt(precise::max(0.0, (BeastDraw.values[1].z - _181) * (BeastDraw.values[1].z + _181))), 9.9999999747524270787835121154785e-07);
+            float _198 = _121 + (_128 * 0.4375);
+            float _202 = precise::max(precise::max(BeastDraw.values[1].z - _198, _198 - _133), 0.0);
+            float _211 = (_202 * _202) / precise::max(BeastDraw.values[1].z + sqrt(precise::max(0.0, (BeastDraw.values[1].z - _202) * (BeastDraw.values[1].z + _202))), 9.9999999747524270787835121154785e-07);
+            float _219 = _121 + (_128 * 0.5625);
+            float _223 = precise::max(precise::max(BeastDraw.values[1].z - _219, _219 - _133), 0.0);
+            float _232 = (_223 * _223) / precise::max(BeastDraw.values[1].z + sqrt(precise::max(0.0, (BeastDraw.values[1].z - _223) * (BeastDraw.values[1].z + _223))), 9.9999999747524270787835121154785e-07);
+            float _240 = _121 + (_128 * 0.6875);
+            float _244 = precise::max(precise::max(BeastDraw.values[1].z - _240, _240 - _133), 0.0);
+            float _253 = (_244 * _244) / precise::max(BeastDraw.values[1].z + sqrt(precise::max(0.0, (BeastDraw.values[1].z - _244) * (BeastDraw.values[1].z + _244))), 9.9999999747524270787835121154785e-07);
+            float _261 = _121 + (_128 * 0.8125);
+            float _265 = precise::max(precise::max(BeastDraw.values[1].z - _261, _261 - _133), 0.0);
+            float _274 = (_265 * _265) / precise::max(BeastDraw.values[1].z + sqrt(precise::max(0.0, (BeastDraw.values[1].z - _265) * (BeastDraw.values[1].z + _265))), 9.9999999747524270787835121154785e-07);
+            float _282 = _121 + (_128 * 0.9375);
+            float _286 = precise::max(precise::max(BeastDraw.values[1].z - _282, _282 - _133), 0.0);
+            float _295 = (_286 * _286) / precise::max(BeastDraw.values[1].z + sqrt(precise::max(0.0, (BeastDraw.values[1].z - _286) * (BeastDraw.values[1].z + _286))), 9.9999999747524270787835121154785e-07);
+            _304 = fast::clamp((((((((precise::max(0.0, precise::min(_147, _117.y - _145) - precise::max(_151, _145)) + precise::max(0.0, precise::min(_147, _117.y - _169) - precise::max(_151, _169))) + precise::max(0.0, precise::min(_147, _117.y - _190) - precise::max(_151, _190))) + precise::max(0.0, precise::min(_147, _117.y - _211) - precise::max(_151, _211))) + precise::max(0.0, precise::min(_147, _117.y - _232) - precise::max(_151, _232))) + precise::max(0.0, precise::min(_147, _117.y - _253) - precise::max(_151, _253))) + precise::max(0.0, precise::min(_147, _117.y - _274) - precise::max(_151, _274))) + precise::max(0.0, precise::min(_147, _117.y - _295) - precise::max(_151, _295))) * (_128 * 0.125), 0.0, 1.0);
+            break;
+        } while(false);
+        _305 = _304;
+    }
+    else
+    {
+        _305 = 1.0;
+    }
+    out.out_var_SV_Target0 = (ColorTexture.sample(ColorSampler, in.in_var_TEXCOORD0) * in.in_var_COLOR0) * (_305 * BeastDraw.values[1].w);
+    return out;
+}
+
+)BEAST_MSL";
     d.combinedSampler = "SPIRV_Cross_CombinedColorTextureColorSampler";
     d.constantsUniform = "BeastDraw.values[0]";
     return Beast::RHI::CreateShader(std::move(d));
@@ -1944,6 +2086,254 @@ void main()
 }
 
 )BEAST_GLSL";
+    d.msl = R"BEAST_MSL(#include <metal_stdlib>
+#include <simd/simd.h>
+
+using namespace metal;
+
+struct type_ConstantBuffer_DrawConstants
+{
+    float4 values[8];
+};
+
+struct ShapeMain_out
+{
+    float4 out_var_SV_Target0 [[color(0)]];
+};
+
+struct ShapeMain_in
+{
+    float2 in_var_TEXCOORD0 [[user(locn0)]];
+    float4 in_var_COLOR0 [[user(locn1)]];
+};
+
+fragment ShapeMain_out ShapeMain(ShapeMain_in in [[stage_in]], constant type_ConstantBuffer_DrawConstants& BeastDraw [[buffer(0)]], texture2d<float> ColorTexture [[texture(0)]], sampler ColorSampler [[sampler(0)]])
+{
+    ShapeMain_out out = {};
+    float4 _672;
+    do
+    {
+        if (BeastDraw.values[7].y > 0.0)
+        {
+            float2 _81 = BeastDraw.values[0].xy * 0.5;
+            float2 _86 = abs(in.in_var_TEXCOORD0 - _81) - (_81 - float2(BeastDraw.values[0].z));
+            float _94 = (length(precise::max(_86, float2(0.0))) + precise::min(precise::max(_86.x, _86.y), 0.0)) - BeastDraw.values[0].z;
+            float _96 = abs(_94) / BeastDraw.values[7].y;
+            float _98 = 1.0 + (0.23164190351963043212890625 * _96);
+            float _99 = 1.0 / _98;
+            float _113 = ((0.398942291736602783203125 * exp(((-0.5) * _96) * _96)) * _99) * (0.319381535053253173828125 + (_99 * ((-0.3565637767314910888671875) + (_99 * (1.78147792816162109375 + (_99 * ((-1.8212559223175048828125) + (1.33027446269989013671875 / _98))))))));
+            float _119;
+            if (_94 >= 0.0)
+            {
+                _119 = _113;
+            }
+            else
+            {
+                _119 = 1.0 - _113;
+            }
+            _672 = (((BeastDraw.values[1] * _119) * in.in_var_COLOR0) * ColorTexture.sample(ColorSampler, float2(0.5))) * BeastDraw.values[7].x;
+            break;
+        }
+        float _366;
+        do
+        {
+            if (precise::min(BeastDraw.values[0].x, BeastDraw.values[0].y) <= 0.0)
+            {
+                _366 = 0.0;
+                break;
+            }
+            if (BeastDraw.values[0].z <= 0.0)
+            {
+                float2 _150 = precise::max(float2(0.0), precise::min(in.in_var_TEXCOORD0 + float2(0.5), BeastDraw.values[0].xy) - precise::max(in.in_var_TEXCOORD0 - float2(0.5), float2(0.0)));
+                _366 = _150.x * _150.y;
+                break;
+            }
+            float2 _154 = BeastDraw.values[0].xy * 0.5;
+            float2 _159 = abs(in.in_var_TEXCOORD0 - _154) - (_154 - float2(BeastDraw.values[0].z));
+            float _162 = _159.x;
+            float _163 = _159.y;
+            float _167 = (length(precise::max(_159, float2(0.0))) + precise::min(precise::max(_162, _163), 0.0)) - BeastDraw.values[0].z;
+            if (_167 <= (-0.707107007503509521484375))
+            {
+                _366 = 1.0;
+                break;
+            }
+            if (_167 >= 0.707107007503509521484375)
+            {
+                _366 = 0.0;
+                break;
+            }
+            float2 _179;
+            float2 _180;
+            if (_162 > _163)
+            {
+                _179 = BeastDraw.values[0].yx;
+                _180 = in.in_var_TEXCOORD0.yx;
+            }
+            else
+            {
+                _179 = BeastDraw.values[0].xy;
+                _180 = in.in_var_TEXCOORD0;
+            }
+            float _183 = precise::max(0.0, _180.x - 0.5);
+            float _186 = precise::min(_179.x, _180.x + 0.5);
+            if (_186 <= _183)
+            {
+                _366 = 0.0;
+                break;
+            }
+            float _190 = _186 - _183;
+            float _193 = _183 + (_190 * 0.0625);
+            float _195 = _179.x - BeastDraw.values[0].z;
+            float _198 = precise::max(precise::max(BeastDraw.values[0].z - _193, _193 - _195), 0.0);
+            float _207 = (_198 * _198) / precise::max(BeastDraw.values[0].z + sqrt(precise::max(0.0, (BeastDraw.values[0].z - _198) * (BeastDraw.values[0].z + _198))), 9.9999999747524270787835121154785e-07);
+            float _209 = _180.y + 0.5;
+            float _213 = _180.y - 0.5;
+            float _218 = _183 + (_190 * 0.1875);
+            float _222 = precise::max(precise::max(BeastDraw.values[0].z - _218, _218 - _195), 0.0);
+            float _231 = (_222 * _222) / precise::max(BeastDraw.values[0].z + sqrt(precise::max(0.0, (BeastDraw.values[0].z - _222) * (BeastDraw.values[0].z + _222))), 9.9999999747524270787835121154785e-07);
+            float _239 = _183 + (_190 * 0.3125);
+            float _243 = precise::max(precise::max(BeastDraw.values[0].z - _239, _239 - _195), 0.0);
+            float _252 = (_243 * _243) / precise::max(BeastDraw.values[0].z + sqrt(precise::max(0.0, (BeastDraw.values[0].z - _243) * (BeastDraw.values[0].z + _243))), 9.9999999747524270787835121154785e-07);
+            float _260 = _183 + (_190 * 0.4375);
+            float _264 = precise::max(precise::max(BeastDraw.values[0].z - _260, _260 - _195), 0.0);
+            float _273 = (_264 * _264) / precise::max(BeastDraw.values[0].z + sqrt(precise::max(0.0, (BeastDraw.values[0].z - _264) * (BeastDraw.values[0].z + _264))), 9.9999999747524270787835121154785e-07);
+            float _281 = _183 + (_190 * 0.5625);
+            float _285 = precise::max(precise::max(BeastDraw.values[0].z - _281, _281 - _195), 0.0);
+            float _294 = (_285 * _285) / precise::max(BeastDraw.values[0].z + sqrt(precise::max(0.0, (BeastDraw.values[0].z - _285) * (BeastDraw.values[0].z + _285))), 9.9999999747524270787835121154785e-07);
+            float _302 = _183 + (_190 * 0.6875);
+            float _306 = precise::max(precise::max(BeastDraw.values[0].z - _302, _302 - _195), 0.0);
+            float _315 = (_306 * _306) / precise::max(BeastDraw.values[0].z + sqrt(precise::max(0.0, (BeastDraw.values[0].z - _306) * (BeastDraw.values[0].z + _306))), 9.9999999747524270787835121154785e-07);
+            float _323 = _183 + (_190 * 0.8125);
+            float _327 = precise::max(precise::max(BeastDraw.values[0].z - _323, _323 - _195), 0.0);
+            float _336 = (_327 * _327) / precise::max(BeastDraw.values[0].z + sqrt(precise::max(0.0, (BeastDraw.values[0].z - _327) * (BeastDraw.values[0].z + _327))), 9.9999999747524270787835121154785e-07);
+            float _344 = _183 + (_190 * 0.9375);
+            float _348 = precise::max(precise::max(BeastDraw.values[0].z - _344, _344 - _195), 0.0);
+            float _357 = (_348 * _348) / precise::max(BeastDraw.values[0].z + sqrt(precise::max(0.0, (BeastDraw.values[0].z - _348) * (BeastDraw.values[0].z + _348))), 9.9999999747524270787835121154785e-07);
+            _366 = fast::clamp((((((((precise::max(0.0, precise::min(_209, _179.y - _207) - precise::max(_213, _207)) + precise::max(0.0, precise::min(_209, _179.y - _231) - precise::max(_213, _231))) + precise::max(0.0, precise::min(_209, _179.y - _252) - precise::max(_213, _252))) + precise::max(0.0, precise::min(_209, _179.y - _273) - precise::max(_213, _273))) + precise::max(0.0, precise::min(_209, _179.y - _294) - precise::max(_213, _294))) + precise::max(0.0, precise::min(_209, _179.y - _315) - precise::max(_213, _315))) + precise::max(0.0, precise::min(_209, _179.y - _336) - precise::max(_213, _336))) + precise::max(0.0, precise::min(_209, _179.y - _357) - precise::max(_213, _357))) * (_190 * 0.125), 0.0, 1.0);
+            break;
+        } while(false);
+        float _616;
+        if (BeastDraw.values[0].w > 0.0)
+        {
+            float2 _373 = BeastDraw.values[0].xy - float2(2.0 * BeastDraw.values[0].w);
+            bool _377 = precise::min(_373.x, _373.y) <= 0.0;
+            float _615;
+            if (_377)
+            {
+                _615 = 0.0;
+            }
+            else
+            {
+                float2 _382 = in.in_var_TEXCOORD0 - float2(BeastDraw.values[0].w);
+                float _384 = precise::max(0.0, BeastDraw.values[0].z - BeastDraw.values[0].w);
+                float _613;
+                do
+                {
+                    if (_377)
+                    {
+                        _613 = 0.0;
+                        break;
+                    }
+                    if (_384 <= 0.0)
+                    {
+                        float2 _397 = precise::max(float2(0.0), precise::min(_382 + float2(0.5), _373) - precise::max(_382 - float2(0.5), float2(0.0)));
+                        _613 = _397.x * _397.y;
+                        break;
+                    }
+                    float2 _401 = _373 * 0.5;
+                    float2 _406 = abs(_382 - _401) - (_401 - float2(_384));
+                    float _409 = _406.x;
+                    float _410 = _406.y;
+                    float _414 = (length(precise::max(_406, float2(0.0))) + precise::min(precise::max(_409, _410), 0.0)) - _384;
+                    if (_414 <= (-0.707107007503509521484375))
+                    {
+                        _613 = 1.0;
+                        break;
+                    }
+                    if (_414 >= 0.707107007503509521484375)
+                    {
+                        _613 = 0.0;
+                        break;
+                    }
+                    float2 _426;
+                    float2 _427;
+                    if (_409 > _410)
+                    {
+                        _426 = _373.yx;
+                        _427 = _382.yx;
+                    }
+                    else
+                    {
+                        _426 = _373;
+                        _427 = _382;
+                    }
+                    float _430 = precise::max(0.0, _427.x - 0.5);
+                    float _433 = precise::min(_426.x, _427.x + 0.5);
+                    if (_433 <= _430)
+                    {
+                        _613 = 0.0;
+                        break;
+                    }
+                    float _437 = _433 - _430;
+                    float _440 = _430 + (_437 * 0.0625);
+                    float _442 = _426.x - _384;
+                    float _445 = precise::max(precise::max(_384 - _440, _440 - _442), 0.0);
+                    float _454 = (_445 * _445) / precise::max(_384 + sqrt(precise::max(0.0, (_384 - _445) * (_384 + _445))), 9.9999999747524270787835121154785e-07);
+                    float _456 = _427.y + 0.5;
+                    float _460 = _427.y - 0.5;
+                    float _465 = _430 + (_437 * 0.1875);
+                    float _469 = precise::max(precise::max(_384 - _465, _465 - _442), 0.0);
+                    float _478 = (_469 * _469) / precise::max(_384 + sqrt(precise::max(0.0, (_384 - _469) * (_384 + _469))), 9.9999999747524270787835121154785e-07);
+                    float _486 = _430 + (_437 * 0.3125);
+                    float _490 = precise::max(precise::max(_384 - _486, _486 - _442), 0.0);
+                    float _499 = (_490 * _490) / precise::max(_384 + sqrt(precise::max(0.0, (_384 - _490) * (_384 + _490))), 9.9999999747524270787835121154785e-07);
+                    float _507 = _430 + (_437 * 0.4375);
+                    float _511 = precise::max(precise::max(_384 - _507, _507 - _442), 0.0);
+                    float _520 = (_511 * _511) / precise::max(_384 + sqrt(precise::max(0.0, (_384 - _511) * (_384 + _511))), 9.9999999747524270787835121154785e-07);
+                    float _528 = _430 + (_437 * 0.5625);
+                    float _532 = precise::max(precise::max(_384 - _528, _528 - _442), 0.0);
+                    float _541 = (_532 * _532) / precise::max(_384 + sqrt(precise::max(0.0, (_384 - _532) * (_384 + _532))), 9.9999999747524270787835121154785e-07);
+                    float _549 = _430 + (_437 * 0.6875);
+                    float _553 = precise::max(precise::max(_384 - _549, _549 - _442), 0.0);
+                    float _562 = (_553 * _553) / precise::max(_384 + sqrt(precise::max(0.0, (_384 - _553) * (_384 + _553))), 9.9999999747524270787835121154785e-07);
+                    float _570 = _430 + (_437 * 0.8125);
+                    float _574 = precise::max(precise::max(_384 - _570, _570 - _442), 0.0);
+                    float _583 = (_574 * _574) / precise::max(_384 + sqrt(precise::max(0.0, (_384 - _574) * (_384 + _574))), 9.9999999747524270787835121154785e-07);
+                    float _591 = _430 + (_437 * 0.9375);
+                    float _595 = precise::max(precise::max(_384 - _591, _591 - _442), 0.0);
+                    float _604 = (_595 * _595) / precise::max(_384 + sqrt(precise::max(0.0, (_384 - _595) * (_384 + _595))), 9.9999999747524270787835121154785e-07);
+                    _613 = fast::clamp((((((((precise::max(0.0, precise::min(_456, _426.y - _454) - precise::max(_460, _454)) + precise::max(0.0, precise::min(_456, _426.y - _478) - precise::max(_460, _478))) + precise::max(0.0, precise::min(_456, _426.y - _499) - precise::max(_460, _499))) + precise::max(0.0, precise::min(_456, _426.y - _520) - precise::max(_460, _520))) + precise::max(0.0, precise::min(_456, _426.y - _541) - precise::max(_460, _541))) + precise::max(0.0, precise::min(_456, _426.y - _562) - precise::max(_460, _562))) + precise::max(0.0, precise::min(_456, _426.y - _583) - precise::max(_460, _583))) + precise::max(0.0, precise::min(_456, _426.y - _604) - precise::max(_460, _604))) * (_437 * 0.125), 0.0, 1.0);
+                    break;
+                } while(false);
+                _615 = precise::min(_366, _613);
+            }
+            _616 = _615;
+        }
+        else
+        {
+            _616 = _366;
+        }
+        float2 _621 = BeastDraw.values[3].zw - BeastDraw.values[3].xy;
+        float4 _640 = (mix(BeastDraw.values[1], BeastDraw.values[2], float4(fast::clamp(dot((in.in_var_TEXCOORD0 / BeastDraw.values[0].xy) - BeastDraw.values[3].xy, _621) / dot(_621, _621), 0.0, 1.0))) * _616) + (BeastDraw.values[4] * precise::max(0.0, _366 - _616));
+        float4 _662;
+        if (BeastDraw.values[5].w > 0.0)
+        {
+            float4 _657 = BeastDraw.values[6] * precise::min(_366, fast::clamp(0.5 - (length(in.in_var_TEXCOORD0 - BeastDraw.values[5].xy) - BeastDraw.values[5].z), 0.0, 1.0));
+            _662 = _657 + (_640 * (1.0 - _657.w));
+        }
+        else
+        {
+            _662 = _640;
+        }
+        _672 = ((_662 * in.in_var_COLOR0) * ColorTexture.sample(ColorSampler, float2(0.5))) * BeastDraw.values[7].x;
+        break;
+    } while(false);
+    out.out_var_SV_Target0 = _672;
+    return out;
+}
+
+)BEAST_MSL";
     d.combinedSampler = "SPIRV_Cross_CombinedColorTextureColorSampler";
     d.constantsUniform = "BeastDraw.values[0]";
     return Beast::RHI::CreateShader(std::move(d));
@@ -2015,6 +2405,36 @@ void main()
 }
 
 )BEAST_GLSL";
+    d.msl = R"BEAST_MSL(#include <metal_stdlib>
+#include <simd/simd.h>
+
+using namespace metal;
+
+struct VSMain_out
+{
+    float2 out_var_TEXCOORD0 [[user(locn0)]];
+    float4 out_var_COLOR0 [[user(locn1)]];
+    float4 gl_Position [[position]];
+};
+
+struct VSMain_in
+{
+    float2 in_var_POSITION [[attribute(0)]];
+    float2 in_var_TEXCOORD0 [[attribute(1)]];
+    float4 in_var_COLOR0 [[attribute(2)]];
+};
+
+vertex VSMain_out VSMain(VSMain_in in [[stage_in]])
+{
+    VSMain_out out = {};
+    out.gl_Position = float4(in.in_var_POSITION, 0.0, 1.0);
+    out.out_var_TEXCOORD0 = in.in_var_TEXCOORD0;
+    out.out_var_COLOR0 = in.in_var_COLOR0;
+    out.gl_Position.y = -(out.gl_Position.y);    // Invert Y-axis for Metal
+    return out;
+}
+
+)BEAST_MSL";
     d.combinedSampler = "";
     return Beast::RHI::CreateShader(std::move(d));
 }
